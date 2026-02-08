@@ -120,7 +120,7 @@ inkypi plugin install node-red https://github.com/RobinWts/InkyPi-Plugin-NodeRed
 
 ### HTML Mode Requirements
 - Node-RED must return valid HTML (can include CSS inline or in `<style>` tags)
-- HTML should be optimized for e-ink displays (high contrast, minimal animations)
+- HTML should be optimized for e-ink displays 
 - Recommended to use responsive CSS for different display sizes
 - HTML is rendered at the device's resolution
 
