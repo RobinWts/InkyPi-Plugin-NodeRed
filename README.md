@@ -1,7 +1,7 @@
-# InkyPi-Plugin-Node-Red
-![InkyPi-Plugin-Node-Red](./example.png)
+# InkyPi-Plugin-NodeRed
+![InkyPi-Plugin-NodeRed](./example.png)
 
-*InkyPi-Plugin-Node-Red* is a plugin for [InkyPi](https://github.com/fatihak/InkyPi) that integrates with Node-RED to display data on InkyPi devices.
+*InkyPi-Plugin-NodeRed* is a plugin for [InkyPi](https://github.com/fatihak/InkyPi) that integrates with Node-RED to display data on InkyPi devices.
 
 ## Features
 
@@ -23,22 +23,15 @@
 - No configuration needed - just send HTML
 
 **Settings:**
-![Screenshot of settings of InkyPi-Plugin-seniorDashboard_allDay](./settings.png)
-Language can be set to **English**, **French** , **Spanish**  or **German**. 
-Other languages can easily be added in *constants.py*, just make sure to use the correct international language ID so the calendar returns correct dates/formats.
-You can add multiple calendars, they will all be used to compile the today, tomorrow and day after tomorrow list.
-Location setting for the weather (DWD supplies world wide weather info).
-Font size for the Calendar listing.
+![Screenshot of settings of InkyPi-Plugin-NodeRed](./settings.png)
 
-
-## Installation
 
 ### Install
 
 Install the plugin using the InkyPi CLI, providing the plugin ID and GitHub repository URL:
 
 ```bash
-inkypi plugin install node-red https://github.com/RobinWts/InkyPi-Plugin-Node-Red
+inkypi plugin install node-red https://github.com/RobinWts/InkyPi-Plugin-NodeRed
 ```
 
 ## Usage:
