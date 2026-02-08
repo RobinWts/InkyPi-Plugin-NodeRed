@@ -213,12 +213,6 @@ class NodeRed(BasePlugin):
         except Exception as e:
             logger.warning(f"Failed to write preview.html: {e}")
         
-        # Log the complete rendered HTML for debugging
-        logger.info("=" * 80)
-        logger.info("RENDERED HTML OUTPUT (for debugging):")
-        logger.info("=" * 80)
-        logger.info(rendered_html)
-        logger.info("=" * 80)
         
         # Convert to image
         return take_screenshot_html(rendered_html, dimensions)
