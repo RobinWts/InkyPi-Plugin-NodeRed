@@ -33,6 +33,8 @@ Install the plugin using the InkyPi CLI, providing the plugin ID and GitHub repo
 ```bash
 inkypi plugin install node-red https://github.com/RobinWts/InkyPi-Plugin-NodeRed
 ```
+or install the [PluginManager](https://github.com/RobinWts/InkyPi-Plugin-PluginManager) first and use that to install via WebUI.
+
 
 ## Usage:
 
