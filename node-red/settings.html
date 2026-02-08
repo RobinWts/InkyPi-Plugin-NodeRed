@@ -1,0 +1,600 @@
+<div class="form-group">
+    <label for="nodeRedUrl" class="form-label">Node-RED URL:</label>
+    <input type="text" id="nodeRedUrl" name="nodeRedUrl" placeholder="http://localhost:1880" required class="form-input">
+    <span class="form-hint">Base URL of your Node-RED instance (e.g., http://localhost:1880)</span>
+</div>
+
+<div class="form-group">
+    <label for="endpointPath" class="form-label">Endpoint Path:</label>
+    <input type="text" id="endpointPath" name="endpointPath" placeholder="/inkypi/data" required class="form-input">
+    <span class="form-hint">Path to your Node-RED HTTP endpoint (e.g., /inkypi/data)</span>
+</div>
+
+<div class="form-group">
+    <label for="timeout" class="form-label">Timeout (seconds):</label>
+    <input type="number" id="timeout" name="timeout" min="1" max="60" value="10" class="form-input">
+    <span class="form-hint">HTTP request timeout in seconds (default: 10)</span>
+</div>
+
+<div class="form-group">
+    <label for="htmlMode" class="form-label">HTML Mode:</label>
+    <div class="toggle-container">
+        <input type="checkbox" id="htmlMode" name="htmlMode" class="toggle-checkbox" value="false"
+            onclick="this.value = this.checked ? 'true' : 'false'; toggleModeDisplay();">
+        <label for="htmlMode" class="toggle-label"></label>
+    </div>
+    <span class="form-hint">When enabled, Node-RED should send complete HTML code. When disabled, Node-RED sends JSON which is parsed according to the layout configuration below.</span>
+</div>
+
+<div class="form-group" id="pageTitleGroup">
+    <label for="pageTitle" class="form-label">Page Title (optional):</label>
+    <input type="text" id="pageTitle" name="pageTitle" placeholder="Enter page title..." class="form-input">
+    <span class="form-hint">Optional title displayed centered at the top (JSON mode only)</span>
+</div>
+
+<style>
+    .divisions-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin: 0.5rem 0;
+    }
+    
+    .division {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 0.75rem;
+        background: #fafafa;
+    }
+    
+    .division-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .division-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #333;
+    }
+    
+    .output-lines-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .output-line {
+        border: 1px solid #e5e5e5;
+        border-radius: 3px;
+        padding: 0.5rem;
+        background: white;
+        transition: border-color 0.2s;
+    }
+    
+    .output-line:hover {
+        border-color: #ccc;
+    }
+    
+    .output-line-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .output-line-header .form-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #666;
+        margin: 0;
+    }
+    
+    .output-line-controls {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.4rem 0.6rem;
+        align-items: start;
+    }
+    
+    @media (max-width: 1200px) {
+        .output-line-controls {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 800px) {
+        .output-line-controls {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    .output-line-controls > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    
+    .output-line-controls .form-label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #555;
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    .order-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+        min-width: 1.8rem;
+    }
+    
+    .order-btn:hover:not(:disabled) {
+        background: #5a6268;
+    }
+    
+    .order-btn:disabled {
+        background: #e9ecef;
+        color: #adb5bd;
+        cursor: not-allowed;
+    }
+    
+    .delete-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.2rem 0.5rem;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+    }
+    
+    .delete-btn:hover {
+        background: #c82333;
+    }
+    
+    .output-line-actions {
+        display: flex;
+        gap: 0.3rem;
+        align-items: center;
+    }
+    
+    .add-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        transition: background 0.2s;
+    }
+    
+    .add-btn:hover {
+        background: #218838;
+    }
+    
+    .form-input-small {
+        padding: 0.3rem 0.4rem;
+        font-size: 0.85rem;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    
+    .form-input-small:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+    }
+    
+    /* Compact color input */
+    .form-input-small[type="color"] {
+        height: 2rem;
+        padding: 0.1rem;
+        cursor: pointer;
+    }
+    
+    /* Better spacing for divisions section */
+    .form-group:has(.divisions-container) {
+        margin-top: 1rem;
+    }
+</style>
+
+<div class="form-group">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <label class="form-label" style="margin: 0;">Divisions:</label>
+        <button type="button" class="add-btn" id="addDivisionBtn" style="margin: 0;">+ Add Division</button>
+    </div>
+    <div id="divisionsContainer" class="divisions-container"></div>
+</div>
+
+<script>
+    let divisionCount = 0;
+    let outputLineCount = 0;
+    
+    const FONTS = ['Jost', 'DS-Digital', 'Napoli', 'Dogica'];
+    const SIZES = ['x-small', 'small', 'normal', 'large', 'x-large'];
+    const ALIGNMENTS = ['left', 'center', 'right'];
+    
+    function createOutputLine(divisionId, lineData = null) {
+        const lineId = `line_${outputLineCount++}`;
+        const type = lineData?.type || 'dataoutput';
+        const value = lineData?.value || '';
+        const format = lineData?.format || '{value}';
+        const font = lineData?.font || 'Jost';
+        const size = lineData?.size || 'normal';
+        const color = lineData?.color || '#000000';
+        const alignment = lineData?.alignment || 'left';
+        
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'output-line';
+        lineDiv.id = lineId;
+        
+        lineDiv.innerHTML = `
+            <div class="output-line-header">
+                <span class="form-label">Output Line</span>
+                <div class="output-line-actions">
+                    <button type="button" class="order-btn" onclick="moveOutputLineUp('${lineId}')" title="Move up">↑</button>
+                    <button type="button" class="order-btn" onclick="moveOutputLineDown('${lineId}')" title="Move down">↓</button>
+                    <button type="button" class="delete-btn" onclick="deleteOutputLine('${lineId}')" title="Delete this output line">×</button>
+                </div>
+            </div>
+            <div class="output-line-controls">
+                <div>
+                    <label class="form-label">Type:</label>
+                    <select name="division_${divisionId}_type[]" class="form-input form-input-small" onchange="updateOutputLineType('${lineId}', this.value)">
+                        <option value="title" ${type === 'title' ? 'selected' : ''}>Title</option>
+                        <option value="divider" ${type === 'divider' ? 'selected' : ''}>Divider</option>
+                        <option value="dataoutput" ${type === 'dataoutput' ? 'selected' : ''}>Data Output</option>
+                    </select>
+                </div>
+                <div id="${lineId}_valueContainer" style="display: ${type === 'divider' ? 'none' : 'block'}">
+                    <label class="form-label" id="${lineId}_valueLabel">${type === 'dataoutput' ? 'JSON Key:' : 'Text:'}</label>
+                    <input type="text" name="division_${divisionId}_value[]" value="${value}" placeholder="${type === 'dataoutput' ? 'e.g., temperature or sensor.temp' : 'Enter text'}" class="form-input form-input-small">
+                </div>
+                <div id="${lineId}_formatContainer" style="display: ${type === 'dataoutput' ? 'block' : 'none'}">
+                    <label class="form-label">Format:</label>
+                    <input type="text" name="division_${divisionId}_format[]" value="${format}" placeholder="{value}°C" class="form-input form-input-small">
+                </div>
+                <div id="${lineId}_fontContainer" style="display: ${type === 'divider' ? 'none' : 'block'}">
+                    <label class="form-label">Font:</label>
+                    <select name="division_${divisionId}_font[]" class="form-input form-input-small">
+                        ${FONTS.map(f => `<option value="${f}" ${font === f ? 'selected' : ''}>${f}</option>`).join('')}
+                    </select>
+                </div>
+                <div id="${lineId}_sizeContainer" style="display: ${type === 'divider' ? 'none' : 'block'}">
+                    <label class="form-label">Size:</label>
+                    <select name="division_${divisionId}_size[]" class="form-input form-input-small">
+                        ${SIZES.map(s => `<option value="${s}" ${size === s ? 'selected' : ''}>${s}</option>`).join('')}
+                    </select>
+                </div>
+                <div id="${lineId}_colorContainer" style="display: block; grid-column: span 1;">
+                    <label class="form-label">Color:</label>
+                    <input type="color" name="division_${divisionId}_color[]" value="${color}" class="form-input-small" style="width: 100%; height: 2rem; min-width: 60px;">
+                </div>
+                <div id="${lineId}_alignmentContainer" style="display: ${type === 'divider' ? 'none' : 'block'}">
+                    <label class="form-label">Alignment:</label>
+                    <select name="division_${divisionId}_alignment[]" class="form-input form-input-small">
+                        ${ALIGNMENTS.map(a => `<option value="${a}" ${alignment === a ? 'selected' : ''}>${a}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+        `;
+        
+        return lineDiv;
+    }
+    
+    function updateOutputLineType(lineId, type) {
+        const valueLabel = document.getElementById(`${lineId}_valueLabel`);
+        const valueInput = document.querySelector(`#${lineId} input[name*="_value[]"]`);
+        const valueContainer = document.getElementById(`${lineId}_valueContainer`);
+        const formatContainer = document.getElementById(`${lineId}_formatContainer`);
+        const fontContainer = document.getElementById(`${lineId}_fontContainer`);
+        const sizeContainer = document.getElementById(`${lineId}_sizeContainer`);
+        const colorContainer = document.getElementById(`${lineId}_colorContainer`);
+        const alignmentContainer = document.getElementById(`${lineId}_alignmentContainer`);
+        
+        if (type === 'divider') {
+            // Hide text, format, font, size, and alignment for divider, but keep color
+            valueContainer.style.display = 'none';
+            formatContainer.style.display = 'none';
+            fontContainer.style.display = 'none';
+            sizeContainer.style.display = 'none';
+            alignmentContainer.style.display = 'none';
+            colorContainer.style.display = 'block';
+        } else if (type === 'dataoutput') {
+            valueContainer.style.display = 'block';
+            valueLabel.textContent = 'JSON Key:';
+            valueInput.placeholder = 'e.g., temperature or sensor.temp';
+            formatContainer.style.display = 'block';
+            fontContainer.style.display = 'block';
+            sizeContainer.style.display = 'block';
+            alignmentContainer.style.display = 'block';
+            colorContainer.style.display = 'block';
+        } else {
+            // Title type
+            valueContainer.style.display = 'block';
+            valueLabel.textContent = 'Text:';
+            valueInput.placeholder = 'Enter text';
+            formatContainer.style.display = 'none';
+            fontContainer.style.display = 'block';
+            sizeContainer.style.display = 'block';
+            alignmentContainer.style.display = 'block';
+            colorContainer.style.display = 'block';
+        }
+    }
+    
+    function deleteOutputLine(lineId) {
+        const lineElement = document.getElementById(lineId);
+        const container = lineElement.parentElement;
+        lineElement.remove();
+        updateOutputLineNumbers(container);
+        updateOrderButtons(container);
+    }
+    
+    function moveOutputLineUp(lineId) {
+        const lineElement = document.getElementById(lineId);
+        const container = lineElement.parentElement;
+        const previousSibling = lineElement.previousElementSibling;
+        
+        if (previousSibling) {
+            container.insertBefore(lineElement, previousSibling);
+            updateOutputLineNumbers(container);
+            updateOrderButtons(container);
+        }
+    }
+    
+    function moveOutputLineDown(lineId) {
+        const lineElement = document.getElementById(lineId);
+        const container = lineElement.parentElement;
+        const nextSibling = lineElement.nextElementSibling;
+        
+        if (nextSibling) {
+            container.insertBefore(nextSibling, lineElement);
+            updateOutputLineNumbers(container);
+            updateOrderButtons(container);
+        }
+    }
+    
+    function updateOutputLineNumbers(container) {
+        const lines = container.querySelectorAll('.output-line');
+        lines.forEach((line, index) => {
+            const label = line.querySelector('.output-line-header .form-label');
+            if (label) {
+                label.textContent = `Output Line ${index + 1}`;
+            }
+        });
+    }
+    
+    function updateOrderButtons(container) {
+        const lines = Array.from(container.querySelectorAll('.output-line'));
+        lines.forEach((line, index) => {
+            const upBtn = line.querySelector('button[onclick*="moveOutputLineUp"]');
+            const downBtn = line.querySelector('button[onclick*="moveOutputLineDown"]');
+            
+            if (upBtn) {
+                upBtn.disabled = index === 0;
+            }
+            if (downBtn) {
+                downBtn.disabled = index === lines.length - 1;
+            }
+        });
+    }
+    
+    function createDivision(divisionData = null) {
+        const divisionId = divisionCount++;
+        const outputLines = divisionData?.outputLines || [];
+        
+        const divisionDiv = document.createElement('div');
+        divisionDiv.className = 'division';
+        divisionDiv.id = `division_${divisionId}`;
+        
+        divisionDiv.innerHTML = `
+            <div class="division-header">
+                <span class="division-title">Division ${divisionId + 1}</span>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button type="button" class="add-btn" onclick="addOutputLine('division_${divisionId}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin: 0;">+ Line</button>
+                    <button type="button" class="delete-btn" onclick="deleteDivision('division_${divisionId}')" title="Delete this division">×</button>
+                </div>
+            </div>
+            <div class="output-lines-container" id="division_${divisionId}_lines"></div>
+        `;
+        
+        const container = document.getElementById('divisionsContainer');
+        container.appendChild(divisionDiv);
+        
+        const linesContainer = document.getElementById(`division_${divisionId}_lines`);
+        if (outputLines.length > 0) {
+            outputLines.forEach(line => {
+                linesContainer.appendChild(createOutputLine(divisionId, line));
+            });
+        } else {
+            // Add one default line
+            linesContainer.appendChild(createOutputLine(divisionId));
+        }
+        
+        // Update line numbers and order buttons after adding lines
+        updateOutputLineNumbers(linesContainer);
+        updateOrderButtons(linesContainer);
+    }
+    
+    function addOutputLine(divisionId) {
+        const linesContainer = document.getElementById(`${divisionId}_lines`);
+        const divId = divisionId.replace('division_', '');
+        linesContainer.appendChild(createOutputLine(divId));
+        updateOutputLineNumbers(linesContainer);
+        updateOrderButtons(linesContainer);
+    }
+    
+    function deleteDivision(divisionId) {
+        document.getElementById(divisionId).remove();
+    }
+    
+    function parseDivisionsFromSettings(settings) {
+        const divisions = [];
+        
+        // Find all division indices from settings keys
+        // Handle both "division_0_type[]" and "division_0_type[0]" formats
+        const divisionIndices = new Set();
+        for (const key in settings) {
+            if (key.startsWith('division_') && (key.includes('_type[]') || key.includes('_type['))) {
+                // Extract division index from key like "division_0_type[]" or "division_0_type[0]"
+                const match = key.match(/division_(\d+)_type/);
+                if (match) {
+                    divisionIndices.add(parseInt(match[1]));
+                }
+            }
+        }
+        
+        // Sort to maintain order
+        const sortedIndices = Array.from(divisionIndices).sort((a, b) => a - b);
+        
+        // Reconstruct each division
+        for (const divIdx of sortedIndices) {
+            // Get arrays for this division - try both [] and [0] formats
+            const getArrayValue = (baseKey) => {
+                // Try array notation first (most common)
+                const arrayKey = `${baseKey}[]`;
+                if (settings[arrayKey] !== undefined) {
+                    const val = settings[arrayKey];
+                    // Handle both array and single value cases
+                    if (Array.isArray(val)) {
+                        return val.filter(x => x !== undefined && x !== null && x !== '');
+                    } else if (val !== undefined && val !== null && val !== '') {
+                        return [val];
+                    }
+                    return [];
+                }
+                
+                // Try indexed notation (division_0_type[0], division_0_type[1], etc.)
+                const indexedValues = [];
+                let index = 0;
+                while (true) {
+                    const indexedKey = `${baseKey}[${index}]`;
+                    if (settings[indexedKey] !== undefined && settings[indexedKey] !== null && settings[indexedKey] !== '') {
+                        indexedValues.push(settings[indexedKey]);
+                        index++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                return indexedValues;
+            };
+            
+            const types = getArrayValue(`division_${divIdx}_type`);
+            const values = getArrayValue(`division_${divIdx}_value`);
+            const formats = getArrayValue(`division_${divIdx}_format`);
+            const fonts = getArrayValue(`division_${divIdx}_font`);
+            const sizes = getArrayValue(`division_${divIdx}_size`);
+            const colors = getArrayValue(`division_${divIdx}_color`);
+            const alignments = getArrayValue(`division_${divIdx}_alignment`);
+            
+            // Build output lines
+            const outputLines = [];
+            const maxLines = Math.max(
+                types.length,
+                values.length,
+                formats.length,
+                fonts.length,
+                sizes.length,
+                colors.length,
+                alignments.length
+            );
+            
+            for (let i = 0; i < maxLines; i++) {
+                outputLines.push({
+                    type: types[i] || 'dataoutput',
+                    value: values[i] || '',
+                    format: formats[i] || '{value}',
+                    font: fonts[i] || 'Jost',
+                    size: sizes[i] || 'normal',
+                    color: colors[i] || '#000000',
+                    alignment: alignments[i] || 'left'
+                });
+            }
+            
+            if (outputLines.length > 0) {
+                divisions.push({ outputLines: outputLines });
+            }
+        }
+        
+        return divisions;
+    }
+    
+    function toggleModeDisplay() {
+        const htmlMode = document.getElementById('htmlMode').checked;
+        const pageTitleGroup = document.getElementById('pageTitleGroup');
+        const divisionsContainer = document.getElementById('divisionsContainer');
+        const divisionsGroup = divisionsContainer ? divisionsContainer.closest('.form-group') : null;
+        
+        if (htmlMode) {
+            // Hide JSON parsing configuration
+            if (pageTitleGroup) pageTitleGroup.style.display = 'none';
+            if (divisionsGroup) divisionsGroup.style.display = 'none';
+        } else {
+            // Show JSON parsing configuration
+            if (pageTitleGroup) pageTitleGroup.style.display = 'block';
+            if (divisionsGroup) divisionsGroup.style.display = 'block';
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load basic settings
+        if (loadPluginSettings) {
+            document.getElementById('nodeRedUrl').value = pluginSettings.nodeRedUrl || 'http://localhost:1880';
+            document.getElementById('endpointPath').value = pluginSettings.endpointPath || '/inkypi/data';
+            document.getElementById('timeout').value = pluginSettings.timeout || 10;
+            document.getElementById('pageTitle').value = pluginSettings.pageTitle || '';
+            
+            // Load HTML mode setting
+            const htmlMode = pluginSettings.htmlMode === 'true';
+            document.getElementById('htmlMode').checked = htmlMode;
+            document.getElementById('htmlMode').value = htmlMode ? 'true' : 'false';
+            
+            // Always restore divisions from saved settings so they are not lost when switching back from HTML mode
+            const divisions = parseDivisionsFromSettings(pluginSettings);
+            if (divisions.length > 0) {
+                divisions.forEach(div => createDivision(div));
+            } else {
+                createDivision();
+            }
+            
+            // Show/hide JSON-only sections based on mode
+            toggleModeDisplay();
+        } else {
+            // Set default values
+            document.getElementById('nodeRedUrl').value = 'http://localhost:1880';
+            document.getElementById('endpointPath').value = '/inkypi/data';
+            document.getElementById('timeout').value = 10;
+            document.getElementById('pageTitle').value = '';
+            document.getElementById('htmlMode').checked = false;
+            document.getElementById('htmlMode').value = 'false';
+            
+            // Create one default division with one output line (only in JSON mode)
+            if (!document.getElementById('htmlMode').checked) {
+                createDivision();
+            }
+            
+            // Update UI based on mode
+            toggleModeDisplay();
+        }
+        
+        // Handle add division button
+        document.getElementById('addDivisionBtn').onclick = () => createDivision();
+    });
+</script>
